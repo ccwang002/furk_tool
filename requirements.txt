@@ -1,0 +1,4 @@
+Jinja2>=2.7
+ipython[all]>=2.3
+pyquery>=1.2
+requests>=2.5
