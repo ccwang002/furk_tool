@@ -76,7 +76,10 @@ def get_zip_mirror(r_download):
 def get_furk_list(ses, args):
     r_finished = ses.get(furk_link('users/files/finished'))
     dom = pq(r_finished.text)
-    top_num = int(args.get('--top', None))
+    if args['--top'] is not None:
+        top_num = int(args['--top'])
+    else:
+        top_num = args['--top']
     item_sl = slice(None, top_num)
     want_dfs = OrderedDict([
         (html_elem.text, html_elem.attrib['href'])
