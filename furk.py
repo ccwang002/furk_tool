@@ -5,6 +5,7 @@ Usage:
     furk.py list [--top=<num>]
     furk.py batch [--top=<num>] [--zip-only [--no-mirror]]
     furk.py <partial_title> [--zip-only [--no-mirror]]
+    furk.py convert <result_dir>
     furk.py -h | --help
     furk.py --version
 
@@ -15,6 +16,7 @@ Options:
     --zip-only              Don't get the extracted file list
     --no-mirror             Don't use mirrors
     <partial_title>         Partial item title
+    <result_dir>            Root dir of the file list
 
 """
 __version__ = '2015.01'
@@ -127,7 +129,29 @@ def furk_batch(ses, args):
                     print(arg)
 
 
+def furk_convert(result_root_str):
+    """Replace %2F with subfoler structure."""
+    result_root = Path(result_root_str)
+    full_file_list = result_root.iterdir()
+    for pth in full_file_list:
+        splitted_pths = str(pth.relative_to(result_root)).split('%2F')
+        if len(splitted_pths) == 0:
+            raise ValueError("Impossible path: {!s}".format(splitted_pths))
+        elif len(splitted_pths) == 1:
+            continue
+        else:
+            new_pth = result_root / Path(*splitted_pths)
+            # print(pth, '->', new_pth)
+            sub_dir = new_pth.parent
+            if not sub_dir.exists():
+                sub_dir.mkdir(parents=True)
+            pth.rename(new_pth)
+
+
 def main(args):
+    if args['convert']:
+        furk_convert(args['<result_dir>'])
+        return
     ses = conn_setup()
     if args['list']:
         furk_list(ses, args)    # list mode
