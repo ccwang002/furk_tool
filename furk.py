@@ -158,8 +158,9 @@ def main(args):
     elif args['batch']:
         furk_batch(ses, args)   # batch mode
 
+def console_main():
+    args = docopt(__doc__, version=__version__)
+    main(args)
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version=__version__)
-    # print(args)
-    main(args)
+    console_main()
