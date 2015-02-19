@@ -2,8 +2,9 @@
 Furk auto downloader
 
 Usage:
-    furk.py list [--top=<num>]
+    furk.py list [--top=<num>] [--credentials=<pth>]
     furk.py batch [--top=<num>] [--zip-only [--no-mirror]]
+                  [--credentials=<pth>]
     furk.py <partial_title> [--zip-only [--no-mirror]]
     furk.py convert <result_dir>
     furk.py -h | --help
@@ -15,12 +16,15 @@ Options:
     -t <num> --top=<num>    Only get top <num> items
     --zip-only              Don't get the extracted file list
     --no-mirror             Don't use mirrors
+    --credentials=<pth>     Path to Furk credentials
+                            [default: ./.furk_credentials]
     <partial_title>         Partial item title
     <result_dir>            Root dir of the file list
 
 """
 __version__ = '2015.02'
 from collections import OrderedDict
+from os.path import expanduser
 from pathlib import Path
 import sys
 
@@ -35,9 +39,9 @@ ARGUMENT_FMT = '''\
 furk_link = lambda sl='': 'https://www.furk.net/%s' % sl
 
 
-def conn_setup():
+def conn_setup(credentials_pth):
     """Initiate furk session and return it."""
-    cred_pth = Path('.furk_credentials')
+    cred_pth = Path(expanduser(credentials_pth))
     if not cred_pth.exists():
         print("put account and password info at ./.furk_credentials")
         sys.exit(1)
@@ -152,7 +156,7 @@ def main(args):
     if args['convert']:
         furk_convert(args['<result_dir>'])
         return
-    ses = conn_setup()
+    ses = conn_setup(credentials_pth=args['--credentials'])
     if args['list']:
         furk_list(ses, args)    # list mode
     elif args['batch']:
