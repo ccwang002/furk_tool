@@ -1,2 +1,3 @@
 .ipynb_checkpoints
 .furk_credentials
+*.egg-info/
