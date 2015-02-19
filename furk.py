@@ -19,7 +19,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2015.01'
+__version__ = '2015.02'
 from collections import OrderedDict
 from pathlib import Path
 import sys
