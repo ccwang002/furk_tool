@@ -43,7 +43,7 @@ setup(
         ]
     ),
 
-    test_suit='nose.collector',
+    test_suite='nose.collector',
     entry_points={
         'console_scripts': [
             'furk = furk:console_main',
