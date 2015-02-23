@@ -42,6 +42,7 @@ setup(
             '*.tests', '*.tests.*', 'tests.*', 'tests',
         ]
     ),
+    py_modules=['furk'],
 
     test_suite='nose.collector',
     entry_points={
