@@ -13,6 +13,7 @@ def find_version(*path_parts):
 
     raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='furk-tool',
     version=find_version('furk.py'),
@@ -31,6 +32,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
     keywords=['furk'],
 

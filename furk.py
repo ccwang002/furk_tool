@@ -2,8 +2,8 @@
 Furk auto downloader
 
 Usage:
-    furk.py list [--top=<num>] [--credentials=<pth>]
-    furk.py batch [--top=<num>] [--zip-only [--no-mirror]]
+    furk.py list [--range=<n>:<n>] [--credentials=<pth>]
+    furk.py batch [--range=<n>:<n>] [--zip-only [--no-mirror]]
                   [--credentials=<pth>]
     furk.py <partial_title> [--zip-only [--no-mirror]]
     furk.py convert <result_dir>
@@ -13,7 +13,8 @@ Usage:
 Options:
     -h --help               Show this message
     -V --version            Show version
-    -t <num> --top=<num>    Only get top <num> items
+    --range=<n>:<n>         Range of selected items using
+                            Python syntax of list slice
     --zip-only              Don't get the extracted file list
     --no-mirror             Don't use mirrors
     --credentials=<pth>     Path to Furk credentials
@@ -68,28 +69,35 @@ def get_uri_list(r_download):
     html_elem = pq(r_download.text)("textarea#plain_list")[0]
     if html_elem is None:
         raise ValueError("Parsing Error")
-    return html_elem.text.splitlines()
+    return list(filter(None,
+        [l.lstrip() for l in html_elem.text.splitlines()]
+    ))
 
 
 def get_zip_mirror(r_download):
-    dom_download = pq(r_download.text)("td#cell_premium_links")
-    return [
-        elem.attrib['href']
-        for elem in dom_download("small a.dl_link")
-    ]
+    dom_a_links = pq(r_download.text)('.col-md-4 br + div + small a')
+    valid_links = filter(
+        lambda e: 'title' in e.attrib and e.attrib['title'].startswith('http'),
+        dom_a_links
+    )
+    return [elem.attrib['href'] for elem in valid_links]
 
 
 def get_furk_list(ses, args):
     r_finished = ses.get(furk_link('users/files/finished'))
     dom = pq(r_finished.text)
-    if args['--top'] is not None:
-        top_num = int(args['--top'])
-    else:
-        top_num = args['--top']
-    item_sl = slice(None, top_num)
+    # create item range
+    txt_range = args['--range'] or ':'
+    start, end = txt_range.split(':', 1)
+    start = int(start) if start else None
+    end = int(end) if end else None
+    item_slice = slice(start, end)
+
     want_dfs = OrderedDict([
         (html_elem.text, html_elem.attrib['href'])
-        for html_elem in dom('div.tor-box h2 a:first')[item_sl]
+        for html_elem in dom(
+            'div.list-group-item > h4.list-group-item-heading > a:first'
+        )[item_slice]
     ])
     return want_dfs
 
