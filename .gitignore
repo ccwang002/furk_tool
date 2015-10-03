@@ -1,3 +1,5 @@
 .ipynb_checkpoints
 .furk_credentials
 *.egg-info/
+build/
+dist/
