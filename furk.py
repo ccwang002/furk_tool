@@ -24,9 +24,10 @@ Options:
 
 """
 __version__ = '2015.10'
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
+from urllib.parse import unquote_plus
 import sys
 
 from docopt import docopt
@@ -34,11 +35,14 @@ from pyquery import PyQuery as pq
 import requests
 
 ARGUMENT_FMT = '''\
-  dir={:s}
+{urlfile.url!s}
+  out={urlfile.path!s}
+  dir={dir!s}
 '''
 
 furk_link = lambda sl='': 'https://www.furk.net/%s' % sl
 
+URLFile = namedtuple('URLFile', ['url', 'path'])
 
 def conn_setup(credentials_pth):
     """Initiate furk session and return it."""
@@ -69,9 +73,17 @@ def get_uri_list(r_download):
     html_elem = pq(r_download.text)("textarea#plain_list")[0]
     if html_elem is None:
         raise ValueError("Parsing Error")
-    return list(filter(None,
+    file_urls = filter(None,
         [l.lstrip() for l in html_elem.text.splitlines()]
-    ))
+    )
+    parsed_info = []
+    for url in file_urls:
+        file_path = unquote_plus(url.rsplit('/', 1)[1])
+        parsed_info.append(URLFile(
+            url=url,
+            path=file_path,
+        ))
+    return parsed_info
 
 
 def get_zip_mirror(r_download):
@@ -133,12 +145,13 @@ def furk_batch(ses, args):
         else:
             # create aria2 uri
             if len(df_links) == 1:
-                print(df_links[0])
+                print(df_links[0].url)
             else:
-                arg = ARGUMENT_FMT.format(df_title)
-                for link in df_links:
-                    print(link)
-                    print(arg)
+                for urlfile in df_links:
+                    print(ARGUMENT_FMT.format(
+                        urlfile=urlfile,
+                        dir=df_title,
+                    ))
 
 
 def furk_convert(result_root_str):
