@@ -23,7 +23,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2015.10'
+__version__ = '2016.9'
 from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
@@ -40,7 +40,7 @@ ARGUMENT_FMT = '''\
   dir={dir!s}
 '''
 
-furk_link = lambda sl='': 'https://www.furk.net/%s' % sl
+furk_link = lambda sl='': 'https://www.furk.net/%s?no_files_limit=1' % sl
 
 URLFile = namedtuple('URLFile', ['url', 'path'])
 
