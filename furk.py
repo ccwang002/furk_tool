@@ -23,7 +23,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2016.9'
+__version__ = '2017.1'
 from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
