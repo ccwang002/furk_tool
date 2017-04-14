@@ -23,7 +23,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2017.1'
+__version__ = '2017.4'
 from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
@@ -70,19 +70,17 @@ def conn_setup(credentials_pth):
 
 
 def get_uri_list(r_download):
-    html_elem = pq(r_download.text)("textarea#plain_list")[0]
-    if html_elem is None:
+    link_html_elems = pq(r_download.text)("#t_files_tree a.url-dl")
+    if not link_html_elems:
         raise ValueError("Parsing Error")
-    file_urls = filter(None,
-        [l.lstrip() for l in html_elem.text.splitlines()]
-    )
+    file_urls = [elem.attrib['href'] for elem in link_html_elems]
+
     parsed_info = []
     for url in file_urls:
         file_path = unquote_plus(url.rsplit('/', 1)[1])
-        parsed_info.append(URLFile(
-            url=url,
-            path=file_path,
-        ))
+        parsed_info.append(
+            URLFile(url=url, path=file_path)
+        )
     return parsed_info
 
 
@@ -161,9 +159,11 @@ def main(args):
     elif args['batch']:
         furk_batch(ses, args)   # batch mode
 
+
 def console_main():
     args = docopt(__doc__, version=__version__)
     main(args)
+
 
 if __name__ == '__main__':
     console_main()
