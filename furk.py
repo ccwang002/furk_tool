@@ -23,7 +23,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2017.4'
+__version__ = '2017.5'
 from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
@@ -40,7 +40,7 @@ ARGUMENT_FMT = '''\
   dir={dir!s}
 '''
 
-furk_link = lambda sl='': 'https://www.furk.net/%s?no_files_limit=1' % sl
+furk_link = lambda sl='': 'https://www.furk.net/%s?no_files_limit=1' % sl  # noqa
 
 URLFile = namedtuple('URLFile', ['url', 'path'])
 
@@ -70,16 +70,23 @@ def conn_setup(credentials_pth):
 
 
 def get_uri_list(r_download):
-    link_html_elems = pq(r_download.text)("#t_files_tree a.url-dl")
-    if not link_html_elems:
+    file_elems = pq(r_download.text)("#t_files_tree > ul > li a.url-dl")
+    if not file_elems:
         raise ValueError("Parsing Error")
-    file_urls = [elem.attrib['href'] for elem in link_html_elems]
-
     parsed_info = []
-    for url in file_urls:
-        file_path = unquote_plus(url.rsplit('/', 1)[1])
+    for file_dom in map(pq, file_elems):
+        url = file_dom.attr('href')
+        path = unquote_plus(url.rsplit('/', 1)[1])
+        subdir_elems = file_dom.parents('.list-group-item')
+        if subdir_elems:
+            subdirs = [
+                pq(d_elem).contents()[0].strip() for d_elem in subdir_elems]
+            subdir_names = [d for d in subdirs if d]
+            if subdir_names:
+                path = '/'.join([*subdir_names, path])
+
         parsed_info.append(
-            URLFile(url=url, path=file_path)
+            URLFile(url=url, path=path)
         )
     return parsed_info
 
