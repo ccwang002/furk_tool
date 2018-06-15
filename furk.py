@@ -23,7 +23,7 @@ Options:
     <result_dir>            Root dir of the file list
 
 """
-__version__ = '2017.5'
+__version__ = '2018.6'
 from collections import OrderedDict, namedtuple
 from os.path import expanduser
 from pathlib import Path
@@ -113,7 +113,7 @@ def get_furk_list(ses, args):
     want_dfs = OrderedDict([
         (html_elem.text, html_elem.attrib['href'])
         for html_elem in dom(
-            'div.list-group-item > h4.list-group-item-heading > a:first'
+            'div.list-group-item > h5 > a:first'
         )[item_slice]
     ])
     return want_dfs
